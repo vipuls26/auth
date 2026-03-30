@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <div class="mx-auto sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
 
         <!-- title + search -->
         <div class="flex flex-wrap justify-between md:flex-nowrap">
@@ -12,12 +12,6 @@
             <div class="flex">
                 <form action="{{ route('blog.all') }}" method="post">
                     @csrf
-
-                    @if(request()->filled('category'))
-                    @foreach(request('category') as $categoryId)
-                    <input type="hidden" name="category[]" value="{{ $categoryId }}">
-                    @endforeach
-                    @endif
                     <x-text-input id="title" class="" type="search" name="search" value="{{ request()->input('search') }}"></x-text-input>
                     <button class="bg-cyan-500 hover:bg-cyan-700 text-white py-2 px-4 rounded-full">search</button>
                 </form>
@@ -31,32 +25,35 @@
             <form action="{{ route('blog.all') }}" method="get" class="space-y-4">
 
                 <div class="flex">
-
-                    <div class="flex items-center flex-wrap me-4 gap-2 md:gap-4">
+                    <div class="flex items-center me-4">
                         @foreach($category as $cat)
 
-                        <div class="flex items-center">
+                        <div class="flex items-center mb-2">
+
                             <input
                                 id="cat-{{ $cat->id }}"
                                 type="checkbox"
                                 name="category[]"
                                 value="{{ $cat->id }}"
-                                class="sr-only peer"
+                                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
                                 @checked(in_array($cat->id, (array) request('category')))>
 
-                            <label for="cat-{{ $cat->id }}" class="flex items-center space-x-2 p-2 rounded-md border border-gray-200 peer-checked:bg-indigo-100 peer-checked:border-indigo-600 peer-checked:text-indigo-900 cursor-pointer text-sm md:text-base">
+                            <label for="cat-{{ $cat->id }}"
+                                class="ml-2 flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 cursor-pointer category-label shrink-0 border border-gray-200">
                                 {{ $cat->name }}
                             </label>
                         </div>
                         @endforeach
                     </div>
 
-                    <div class="gap-4">
-                        <button type="submit" class="justify-end mb-4 px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <div>
+                        <button type="submit" class="justify-end px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                             Filter
                         </button>
 
                         <a href="{{ route('blog.all') }}" class="ml-auto px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Clear</a>
+
+
 
                     </div>
 
@@ -115,7 +112,7 @@
                             </p>
                         </div>
                         <p class="text-sm text-gray-500">
-                            {{ $blog->updated_at->format('M d, Y') }}
+                            {{ $blog->created_at->format('M d, Y') }}
                         </p>
                     </div>
                 </div>

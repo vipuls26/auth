@@ -1,30 +1,34 @@
 <x-app-layout>
 
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-4">
+    <div class="relative overflow-x-auto shadow-lg sm:rounded-lg p-4 bg-white dark:bg-gray-800">
+
         <table id="blog-table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th scope="col" class="px-6 py-3">Id</th>
-                    <th scope="col" class="px-6 py-3">Title</th>
-                    <th scope="col" class="px-6 py-3">Content</th>
-                    <th scope="col" class="px-6 py-3">Status</th>
-                    <th scope="col" class="px-6 py-3">Category</th>
-                    <th scope="col" class="px-6 py-3">user</th>
-                    <th scope="col" class="px-6 py-3">created at</th>
-                    <th scope="col" class="px-6 py-3">updated at</th>
-                    <th scope="col" class="px-6 py-3">Action</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Id</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Title</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Content</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Category</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">User</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Created At</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Updated At</th>
+                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Status</th>
                 </tr>
             </thead>
         </table>
     </div>
 
-
 </x-app-layout>
 
+
+<!-- toaster library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
 <!-- jquery -->
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <!-- datatable cdn -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
@@ -53,10 +57,6 @@
                     name: 'content'
                 },
                 {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
                     data: 'category_name',
                     name: 'category_name'
                 },
@@ -66,19 +66,70 @@
                 },
 
                 {
-                    data: 'created_at',
-                    name: 'created_at'
+                    data: 'created_at.date',
+                    name: 'created_at',
+
                 },
                 {
-                    data: 'updated_at',
+                    data: 'updated_at.date',
                     name: 'updated_at'
                 },
                 {
-                    data: 'action',
+                    data: 'status',
+                    name: 'status',
                     orderable: false,
                     searchable: false
                 }
             ]
+        });
+
+        $(document).on('change', '.status-dropdown', function() {
+
+            let updateStatus = $(this).val();
+            let blog_id = $(this).data('id');
+
+            $.ajax({
+                url: "/blog/" + blog_id + "/updateyajra",
+                method: 'POST',
+                data: {
+                    id: blog_id,
+                    status: updateStatus,
+                    _token: ' {{ csrf_token() }}'
+                },
+                success: function(response) {
+                    $('#blog-table').DataTable().ajax.reload(null, false);
+
+                    if (response.success) {
+                        toastr.options = {
+                            "closeButton": true,
+                            "debug": false,
+                            "newestOnTop": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "preventDuplicates": false,
+                            "onclick": null,
+                            "showDuration": "300",
+                            "hideDuration": "1000",
+                            "timeOut": "5000",
+                            "extendedTimeOut": "1000",
+                            "showEasing": "swing",
+                            "hideEasing": "linear",
+                            "showMethod": "fadeIn",
+                            "hideMethod": "fadeOut"
+                        }
+                        toastr.success(response.success);
+                    } else {
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "5000",
+                        };
+
+                        toastr.error(response.error);
+                    }
+                }
+            });
         });
     });
 </script>

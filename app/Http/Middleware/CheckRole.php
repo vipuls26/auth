@@ -20,8 +20,7 @@ class CheckRole
         if (!Auth::check()) {
             return redirect()->route('login');
         }
-        $aaa=['dmin','super'];
-
+        
         $user = Auth::user();
         $currentRole = $user->roles->first()->name;
 

@@ -5,9 +5,11 @@ namespace App\Http\Requests\Blog;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class BlogRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
-
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;
@@ -21,19 +23,20 @@ class BlogRequest extends FormRequest
     public function rules(): array
     {
         return [
+            
             'title' => 'required|min:3|max:50',
             'category' => 'required',
             'content' => 'required|min:5|max:6000',
             'image' => [
-                            'required',
-                            'mimes:jpeg,png,jpg',
-                            'max:5120',
-                            'min:5',
-                            'dimensions:min_width=400,min_height=400'
-                        ]
+                'mimes:jpeg,png,jpg',
+                'max:5120',
+                'min:128',
+                'dimensions:min_width=400,min_height=400'
+            ]
         ];
     }
-    public function messages():array
+
+    public function messages(): array
     {
         return [
 
@@ -51,12 +54,11 @@ class BlogRequest extends FormRequest
             'content.max' => 'title not more than 6000 character',
 
             // image
-            'image.required' => 'image are required',
             'image.mimes' => 'only .jpeg, .png, .jpg format are allow be',
             'image.max' => 'max 2 mb size are allow',
-            'image.min' => 'image size alteast 5 kb',
-            'image.min_width' => 'image must be more than 40 px width',
-            'image.min_height' => 'image must be more than 40 px height'
+            'image.min' => 'image size alteast 128 kb',
+            'image.min_width' => 'image must be more than 400 px width',
+            'image.min_height' => 'image must be more than 400 px height'
         ];
     }
 }

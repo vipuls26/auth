@@ -1,10 +1,11 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div>
         <div class="flex justify-between h-16">
             <div class="flex">
 
                 <!-- Navigation Links -->
+
 
                 @php
                 $user = Auth::user();
@@ -12,23 +13,42 @@
                 $roleName = $user && $user->roles->isNotEmpty() ? $user->roles->first()->name : 'user';
                 @endphp
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+
+                    @auth
                     <x-nav-link :href="url('/' . $roleName . '/dashboard')" :active="request()->is($roleName . '/dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @else
+
+                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+
+                        <h3 class="text-end leading-none mb-1 font-semibold p-3">Welcome, {{ Auth::user()?->name ?? 'Guest' }}</h3>
+
+                        <div class="relative w-12 h-12 rounded-full overflow-hidden">
+                            <img src="{{ asset('storage/' . (Auth::user()->image?->image_path ?? 'profile/69c5227eb1a26.png')) }}" alt="profile"
+                                class="absolute top-0 left-0 w-full h-full object-cover">
+                        </div>
+
+                    </button>
+                    @endauth
 
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+
+                @auth
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
+
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
 
-                            <h3 class="text-end leading-none mb-1 font-semibold p-3">Welcome, {{ Auth::user()->name }}</h3>
+                            <h3 class="text-end leading-none mb-1 font-semibold p-3">Welcome, {{ Auth::user()?->name ?? 'Guest' }}</h3>
 
                             <div class="relative w-12 h-12 rounded-full overflow-hidden">
-                                <img src="{{ asset('storage/' . (Auth::user()->image?->image_path ?? 'profile/1774006004.jpg')) }}" alt="profile"
+                                <img src="{{ asset('storage/' . (Auth::user()->image?->image_path ?? 'profile/69c5227eb1a26.png')) }}" alt="profile"
                                     class="absolute top-0 left-0 w-full h-full object-cover">
                             </div>
 
@@ -36,12 +56,16 @@
 
                     </x-slot>
 
+
+
                     <x-slot name="content">
+                        @auth
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
+                        @if(Auth::user())
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
@@ -51,8 +75,19 @@
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
+                        @endif
+
+                        @endauth
                     </x-slot>
                 </x-dropdown>
+                @else
+                <div>
+                    <a href="{{ route('login') }}" class="ml-auto px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Sign in</a>
+
+                    <a href="{{ route('register') }}" class="ml-auto px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Sign up</a>
+
+                </div>
+                @endauth
             </div>
 
             <!-- Hamburger -->
@@ -79,7 +114,7 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()?->name ?? 'Guest' }}</div>
             </div>
 
             <div class="mt-3 space-y-1">

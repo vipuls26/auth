@@ -6,13 +6,13 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\User\UserController;
-use App\Models\Blog;
 use Illuminate\Support\Facades\Route;
-use Yajra\DataTables\DataTables;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+
+// display
+Route::get('/', [BlogController::class, 'show'])->name('blog.all');
+Route::post('/', [BlogController::class, 'show'])->name('blog.all');
+
 
 // route with email verified
 // Route::middleware('auth','verified')->group(function () {
@@ -33,12 +33,21 @@ Route::prefix('/user')->middleware(['auth', 'role:user'])->group(function () {
 });
 
 // blog route
-Route::prefix('/blog')->middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/add', [BlogController::class, 'add'])->name('blog.add');
-    Route::post('/store', [BlogController::class, 'store'])->name('blog.store');
-    Route::get('/all', [BlogController::class, 'show'])->name('blog.all');
-    Route::post('/all', [BlogController::class, 'show'])->name('blog.all');
+Route::prefix('/blog')->group(function () {
+    // add
+    Route::get('/add', [BlogController::class, 'add'])->name('blog.add')->middleware(['auth', 'role:user']);
+    Route::post('/store', [BlogController::class, 'store'])->name('blog.store')->middleware(['auth', 'role:user']);
+
+    // detail blog
     Route::get('/{id}/detail', [BlogController::class, 'detail'])->name('blog.detail');
+
+    // edit
+    Route::get('/{id}/edit', [BlogController::class, 'edit'])->name('blog.edit')->middleware(['auth', 'role:user']);
+    Route::post('/{id}/updateBlog', [BlogController::class, 'updateBlog'])->name('blog.updateBlog')->middleware(['auth', 'role:user']);
+    Route::post('/{id}/updateyajra', [BlogController::class, 'updateyajra'])->name('blog.updateyajra')->middleware(['auth', 'role:admin']);
+
+    // delete
+    Route::delete('/{id}/delete', [BlogController::class, 'delete'])->name('blog.delete')->middleware(['auth', 'role:user']);
 });
 
 
