@@ -26,10 +26,13 @@ class BlogController extends Controller
     public function store(BlogRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+
         $file = $request->file('image');
         $user_id = Auth::user()->id;
 
         $category = category::where('name', $request->category)->first();
+
+
 
         $imageName = uniqid() . '.' . $file->extension();
 
@@ -231,7 +234,7 @@ class BlogController extends Controller
         $blog = Blog::where('id', $id)->where('user_id', $user_id)->first();
 
         if ($blog->user_id === $user_id) {
-            //$blog->delete();
+            $blog->delete();
             return redirect()->route('user.dashboard')->with('message', 'blog delete successfully');
         } else {
             return redirect()->route('user.dashboard')->with('message', 'this is not your blog');
