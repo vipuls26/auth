@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Blog;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Blog\BlogRequest;
 use App\Http\Requests\Blog\UpdateRequest;
+use App\Http\Resources\BlogApiResource;
+use App\Http\Resources\BlogResource;
 use Illuminate\Http\Request;
 use App\Models\Blog;
 use App\Models\Category;
@@ -19,22 +21,25 @@ class BlogController extends Controller
 {
 
     // all blog
-    public function allBlog(Request $request)
+    public function allBlog()
     {
-        $blogs = Blog::with('image')->get();
+        $blogs = Blog::with(['image', 'user', 'category'])->paginate(5);
 
         if (!$blogs) {
             return response()->json([
-                'status' => 0,
+                'status' => 404,
                 'message' => 'no blog found',
                 'data' => $blogs
             ]);
         } else {
-            return response()->json([
-                'status' => 1,
-                'message' => 'blog fetch successfully',
-                'data' => $blogs
-            ]);
+            // return response()->json([
+            //     'status' => 200,
+            //     'message' => 'blog fetch successfully',
+            //     'data' => BlogResource::collection($blogs)
+            // ]);
+            return BlogResource::collection($blogs);
+            // return BlogApiResource::collection($blogs);
+
         }
     }
 
@@ -44,24 +49,17 @@ class BlogController extends Controller
         $user_id = Auth::id();
 
         $blogs = Blog::with('image')->where('user_id', $user_id)->get();
-        // dd($blogs);
 
+        $message = $blogs->isEmpty() ? 'no blog found' : 'blog fetch for current user';
 
-        if (!$blogs) {
-            return response()->json([
-                'status' => 0,
-                'message' => 'no blog found',
-                'data' => $blogs
-            ]);
-        } else {
-            return response()->json([
-                'status' => 1,
-                'message' => 'blog fetch for current user',
-                'user_id' => $user_id,
-                'data' => $blogs
-            ]);
-        }
+        return response()->json([
+            'status' => 200,
+            'message' => $message,
+            'user_id' => $user_id,
+            'data' => $blogs
+        ]);
     }
+
 
     // create blog
     public function create(BlogRequest $request)
@@ -102,12 +100,12 @@ class BlogController extends Controller
 
         if (!$blog) {
             return response()->json([
-                'status' => 0,
+                'status' => 400,
                 'message' => 'blog failed to upload',
             ]);
         } else {
             return response()->json([
-                'status' => 1,
+                'status' => 200,
                 'message' => 'blog uploaded successfully',
                 'data' => $blog
             ]);
@@ -128,13 +126,13 @@ class BlogController extends Controller
             Log::warning($e);
 
             return response()->json([
-                'status' => 0,
+                'status' => 401,
                 'message' => 'this blog is not belongs to you'
             ]);
         }
 
         return response()->json([
-            'status' => 1,
+            'status' => 200,
             'message' => 'edit blog working',
             'data' => $blog
         ]);
@@ -151,7 +149,7 @@ class BlogController extends Controller
         } catch (Exception $e) {
             Log::warning($e);
             return response()->json([
-                'status' => 0,
+                'status' => 401,
                 'message' => 'this is not your blog'
             ]);
         }
@@ -171,8 +169,10 @@ class BlogController extends Controller
         if ($file) {
             // namimg of image upload
             $imageName = uniqid() . '.' . $file->extension();
+
             // store image in folder
             $imagePath = $file->storeAs('blogs', $imageName, 'public');
+
             // check if file exist or not
             $existing_image = ImageUpload::where('blog_id', $blog->id)->first();
 
@@ -193,7 +193,7 @@ class BlogController extends Controller
             }
         }
         return response()->json([
-            'status' => 1,
+            'status' => 404,
             'message' => 'this blog is your',
             'data' => ''
         ]);
@@ -210,7 +210,7 @@ class BlogController extends Controller
         } catch (Exception $e) {
             Log::warning($e);
             return response()->json([
-                'status' => 0,
+                'status' => 401,
                 'message' => 'this is not your blog'
             ]);
         }
@@ -218,7 +218,7 @@ class BlogController extends Controller
         $blog->delete();
 
         return response()->json([
-            'status' => 1,
+            'status' => 200,
             'message' => 'blog is deleted successfully'
         ]);
     }
@@ -237,17 +237,16 @@ class BlogController extends Controller
         } catch (Exception $e) {
             Log::warning($e);
             return response()->json([
-                'status' => 0,
-                'message' => 'this is not your blog'
+                'status' => 401,
+                'message' => 'blog not exist'
             ]);
         }
 
         // send response if blog belong to user
         return response()->json([
-            'status' => 1,
-            'message' => 'detail api work',
-            'data' => $blog
-            ]);
-
+            'status' => 200,
+            'message' => 'blog detail fetch successfully',
+            'data' => new BlogResource($blog)
+        ]);
     }
 }

@@ -115,7 +115,7 @@
                             </p>
                         </div>
                         <p class="text-sm text-gray-500">
-                            {{ $blog->updated_at->format('M d, Y') }}
+                            {{ DateFormat($blog->updated_at) }}
                         </p>
                     </div>
                 </div>

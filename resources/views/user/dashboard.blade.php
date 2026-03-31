@@ -190,29 +190,26 @@
         }, 2000);
 
         // sweet alert
-        $('button').click(function() {
+        $('.Delete').on('click', function(event) {
 
-            $('.Delete').click(function(event) {
-                
-                event.preventDefault();
-                var form = $(this).closest("form");
+            event.preventDefault();
+            var form = $(this).closest("form");
 
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#eab308',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This change are perment",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#eab308',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
 
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
-        })
+        });
     });
 </script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\DateFormat;
 use App\Http\Requests\Blog\BlogRequest;
 use App\Http\Requests\Blog\UpdateRequest;
 use App\Models\Category;
@@ -12,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+
 
 class BlogController extends Controller
 {
@@ -151,13 +153,13 @@ class BlogController extends Controller
 
                 ->editColumn('created_at', function ($row) {
                     return [
-                        'date'   => $row->created_at->format('d/m/Y H:i:s')
+                        'date'   => DateFormat($row->created_at)
                     ];
                 })
 
                 ->editColumn('updated_at', function ($row) {
                     return [
-                        'date'   => $row->updated_at->format('d/m/Y H:i:s')
+                        'date'   => DateFormat($row->updated_at),
                     ];
                 })
 

@@ -27,7 +27,7 @@ class AuthController extends Controller
             ]);
         } elseif (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'status' => 0,
+                'status' => 401,
                 'message' => 'password is incorrect',
                 'data' => $validator
             ]);
@@ -36,7 +36,7 @@ class AuthController extends Controller
             $token = $user->createToken('api-token')->plainTextToken;
 
             return response()->json([
-                'status' => '1',
+                'status' => '200',
                 'message' => 'user login successfully',
                 'token' => $token,
                 'data' => $validator
@@ -62,13 +62,13 @@ class AuthController extends Controller
 
         if (!$user) {
             return response()->json([
-                'status' => 0,
+                'status' => 401,
                 'message' => 'validation error occur',
                 'data' => $validator
             ]);
         } else {
             return response()->json([
-                'status' => '1',
+                'status' => 200,
                 'message' => 'user register successfully',
                 'data' => $validator
             ]);
@@ -82,12 +82,12 @@ class AuthController extends Controller
 
         if (!$user) {
             return response()->json([
-                'status' => 0,
+                'status' => 401,
                 'message' => 'logout failed'
             ]);
         } else {
             return response()->json([
-                'status' => 1,
+                'status' => 200,
                 'message' => 'logout successfully'
             ]);
         }
