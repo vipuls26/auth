@@ -23,14 +23,14 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+
             'title' => 'required|min:3|max:50',
-            'category' => 'required',
+            'category' => 'required|exists:categories,name',
             'content' => 'required|min:5|max:6000',
             'image' => [
                 'mimes:jpeg,png,jpg',
                 'max:5120',
-                'min:128',
+                'min:50',
                 'dimensions:min_width=400,min_height=400'
             ]
         ];
@@ -47,6 +47,7 @@ class UpdateRequest extends FormRequest
 
             // category
             'category.required' => 'category is required',
+            'category.exists' => 'selected category is not valid',
 
             // content
             'content.required' => 'content is required',
@@ -56,7 +57,7 @@ class UpdateRequest extends FormRequest
             // image
             'image.mimes' => 'only .jpeg, .png, .jpg format are allow be',
             'image.max' => 'max 2 mb size are allow',
-            'image.min' => 'image size alteast 128 kb',
+            'image.min' => 'image size alteast 50 kb',
             'image.min_width' => 'image must be more than 400 px width',
             'image.min_height' => 'image must be more than 400 px height'
         ];

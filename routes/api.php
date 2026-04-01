@@ -2,15 +2,17 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Blog\BlogController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+
+// search
+Route::get('/blog', [BlogController::class, 'search'])->name('blog.search');
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -21,8 +23,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::prefix('/blog')->middleware('auth:sanctum')->group(function () {
 
-    // for current user
-    Route::get('/myblog', [BlogController::class, 'myBlog'])->name('blog.myblog');
+    // for login user
+    Route::get('/myblogs', [BlogController::class, 'myBlog'])->name('blog.myblogs');
+
+    // total post
+    Route::get('/posts', [BlogController::class, 'postDetail'])->name('blog.posts');
 
     // for detail blog
     Route::get('/{id}/detail', [BlogController::class, 'detail'])->name('blog.detail');
@@ -41,4 +46,11 @@ Route::prefix('/blog')->middleware('auth:sanctum')->group(function () {
 });
 
 // guest user
-Route::get('/blog/allblog', [BlogController::class, 'allBlog'])->name('blog.allblog');
+Route::get('/blog/allblogs', [BlogController::class, 'allBlog'])->name('blog.allblogs');
+
+
+
+// guset user blog detail
+Route::get('/blog/{id}/blogdetail', [BlogController::class, 'blogDetail'])->name('blog.blog_detail');
+
+

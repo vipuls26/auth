@@ -22,7 +22,7 @@ class BlogRequest extends FormRequest
     {
         return [
             'title' => 'required|min:3|max:50',
-            'category' => 'required',
+            'category' => 'required|exists:categories,name',
             'content' => 'required|min:5|max:6000',
             'image' => [
                             'required',
@@ -44,6 +44,7 @@ class BlogRequest extends FormRequest
 
             // category
             'category.required' => 'category is required',
+            'category.exists' => 'selected category is not valid',
 
             // content
             'content.required' => 'content is required',

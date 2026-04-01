@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Blog;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Blog\BlogRequest;
 use App\Http\Requests\Blog\UpdateRequest;
-use App\Http\Resources\BlogApiResource;
 use App\Http\Resources\BlogResource;
 use Illuminate\Http\Request;
 use App\Models\Blog;
@@ -20,46 +19,53 @@ use Illuminate\Support\Facades\Storage;
 class BlogController extends Controller
 {
 
-    // all blog
+    // all blog for quest user
     public function allBlog()
     {
-        $blogs = Blog::with(['image', 'user', 'category'])->paginate(5);
+        // fetch only publish blog
+        $blogs = Blog::with(['image', 'user', 'category'])->where('status', 'publish')->paginate(5);
+        // $blogs = Blog::where('status', 'publish')->paginate(5);
 
-        if (!$blogs) {
+        // check if blog are not empty
+        if ($blogs->isEmpty()) {
             return response()->json([
                 'status' => 404,
                 'message' => 'no blog found',
-                'data' => $blogs
-            ]);
+            ], 404);
         } else {
-            // return response()->json([
-            //     'status' => 200,
-            //     'message' => 'blog fetch successfully',
-            //     'data' => BlogResource::collection($blogs)
-            // ]);
-            return BlogResource::collection($blogs);
-            // return BlogApiResource::collection($blogs);
 
+            return response()->json([
+                'status' => 200,
+                'message' => 'successfully fetch blog',
+                // 'data' => BlogResource::collection($blogs)
+                'data' => $blogs
+            ], 200);
         }
     }
 
-    // for current user
-    public function myBlog(Request $request)
+    // for login user
+    public function myBlog()
     {
+        // login user user_id
         $user_id = Auth::id();
 
+        // fetch blog which own by current user
         $blogs = Blog::with('image')->where('user_id', $user_id)->get();
 
-        $message = $blogs->isEmpty() ? 'no blog found' : 'blog fetch for current user';
-
-        return response()->json([
-            'status' => 200,
-            'message' => $message,
-            'user_id' => $user_id,
-            'data' => $blogs
-        ]);
+        // check if user has blog or not
+        if ($blogs->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'no blog found',
+            ], 404);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'successfully fetch blog',
+                'data' => $blogs
+            ], 200);
+        }
     }
-
 
     // create blog
     public function create(BlogRequest $request)
@@ -97,28 +103,30 @@ class BlogController extends Controller
             'blog_id' => $blog->id,
         ]);
 
-
         if (!$blog) {
             return response()->json([
                 'status' => 400,
                 'message' => 'blog failed to upload',
-            ]);
+            ], 400);
         } else {
             return response()->json([
                 'status' => 200,
                 'message' => 'blog uploaded successfully',
                 'data' => $blog
-            ]);
+            ], 201);
         }
     }
 
     // edit blog
     public function edit(Request $request, $id)
     {
-
+        // blog id
         $blog_id = $id;
+
+        // login user user_id
         $user_id = Auth::id();
 
+        // check if blog belong to login user
         try {
             $blog = Blog::with('image')->where('id', $blog_id)->where('user_id', $user_id)->firstOrFail();
         } catch (Exception $e) {
@@ -127,31 +135,36 @@ class BlogController extends Controller
 
             return response()->json([
                 'status' => 401,
-                'message' => 'this blog is not belongs to you'
-            ]);
+                'message' => 'you have no access to edit this blog'
+            ], 401);
         }
 
+        // pass message if blog were updated
         return response()->json([
             'status' => 200,
-            'message' => 'edit blog working',
+            'message' => 'edit blog fetch successfully',
             'data' => $blog
-        ]);
+        ], 200);
     }
 
     // update blog
     public function update(UpdateRequest $request, $id)
     {
+        // blog id
         $blog_id = $id;
+
+        // login user user_id
         $user_id = Auth::id();
 
+        // check if blog belong to login user
         try {
             $blog = Blog::where('id', $blog_id)->where('user_id', $user_id)->firstOrFail();
         } catch (Exception $e) {
             Log::warning($e);
             return response()->json([
                 'status' => 401,
-                'message' => 'this is not your blog'
-            ]);
+                'message' => 'you have no access to edit this blog'
+            ], 401);
         }
 
         // fetch category id based on category name
@@ -192,38 +205,59 @@ class BlogController extends Controller
                 ]);
             }
         }
+
         return response()->json([
-            'status' => 404,
+            'status' => 200,
             'message' => 'this blog is your',
-            'data' => ''
-        ]);
+            'data' => $blog
+        ], 200);
     }
 
     // delete blog
     public function delete(Request $request, $id)
     {
+        // blog id
         $blog_id = $id;
+
+        // login user user_id
         $user_id = Auth::id();
 
-        try {
-            $blog = Blog::where('id', $blog_id)->where('user_id', $user_id)->firstOrFail();
-        } catch (Exception $e) {
-            Log::warning($e);
+        // fetch blog requested
+        $blog = Blog::find($blog_id);
+
+        // check if blog exist
+        if (!$blog) {
             return response()->json([
-                'status' => 401,
-                'message' => 'this is not your blog'
-            ]);
+                'status' => 404,
+                'message' => 'requested blog does not exist'
+            ], 404);
         }
 
-        $blog->delete();
+        // check if user is owner of this blog
+        if ($blog->user_id !== $user_id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'you have no access to delete this blog'
+            ], 403);
+        }
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'blog is deleted successfully'
-        ]);
+        // delete blog
+        try {
+            // $blog->delete();
+            return response()->json([
+                'status' => 200,
+                'message' =>  'blog delete successfully'
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' =>  'error occur while deleting blog'
+            ], 500);
+        }
     }
 
-    // detail blog
+
+    // detail blog for login user
     public function detail(Request $request, $id)
     {
         // for current user
@@ -238,7 +272,7 @@ class BlogController extends Controller
             Log::warning($e);
             return response()->json([
                 'status' => 401,
-                'message' => 'blog not exist'
+                'message' => 'this blog not belong to you'
             ]);
         }
 
@@ -247,6 +281,75 @@ class BlogController extends Controller
             'status' => 200,
             'message' => 'blog detail fetch successfully',
             'data' => new BlogResource($blog)
+        ]);
+    }
+
+    // for guest blog detail
+    public function blogDetail(Request $request, $id)
+    {
+        $blog_id = $id;
+
+        if (!is_numeric($blog_id)) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'id should be numeric'
+            ]);
+        }
+        $blog = Blog::where('id', $blog_id)->first();
+
+        if (!$blog) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'this blog does not exist'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'blog detail fetch successfully',
+            'data' => new BlogResource(Blog::find($id))
+        ], 200);
+    }
+
+    // search
+    public function search(Request $request)
+    {
+        $searchItem = $request->query('search');
+
+        $blogs = Blog::query()->when($searchItem, function ($query, $searchItem) {
+            $query->where('title', 'LIKE', '%' . $searchItem . '%');
+        })->paginate(5);
+
+        if ($blogs->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'not result found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'search result',
+            'data' => $blogs
+        ], 200);
+    }
+
+    // totoal post
+    public function postDetail()
+    {
+        $user_id = Auth::id();
+        $totalBlog = Blog::where('user_id', $user_id)->count();
+        $publishBlog = Blog::where('status','publish')->where('user_id',$user_id)->count();
+        $pendingBlog = Blog::where('status','pending')->where('user_id',$user_id)->count();
+        $reviewBlog = Blog::where('status','review')->where('user_id',$user_id)->count();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'total post for login user',
+            'totalPost' => $totalBlog,
+            'pendingPost' => $pendingBlog,
+            'publishPost' => $publishBlog,
+            'reviewPost' => $reviewBlog
         ]);
     }
 }

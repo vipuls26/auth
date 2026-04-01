@@ -29,6 +29,7 @@ class RegisterRequest extends FormRequest
             'email' => 'required|string|lowercase|email|max:255|unique:users',
             'password' => ['required', Rules\Password::defaults()],
             'password_confirmation' => 'required|same:password',
+            'role' => 'required|exists:roles,name'
 
         ];
     }
@@ -36,21 +37,29 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
+
+            // name
             'name.required' => 'name is required',
             'name.min' => 'atleast 2 character',
             'name.max' => 'not more than 15 character',
 
+            // email
             'email.required' => 'email is required',
             'email.email' => 'valid email format.',
             'email.unique' => 'this email already exist BE',
             'email.lowercase' => 'email must be in lower case',
 
+            // password
             'password.required' => 'password is required',
             'password.min' => 'atleast 8 character',
 
+            // confirm password
             'password_confirmation.required' => 'confirm password is required',
             'password_confirmation.same' => 'confirm password not match',
 
+            // role
+            'role.required' => 'role is required',
+            'role.exists' => 'role must be user, admin or superadmin'
         ];
     }
 }
