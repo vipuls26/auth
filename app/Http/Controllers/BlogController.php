@@ -34,8 +34,6 @@ class BlogController extends Controller
 
         $category = category::where('name', $request->category)->first();
 
-
-
         $imageName = uniqid() . '.' . $file->extension();
 
         $imagePath = $file->storeAs('blogs', $imageName, 'public');

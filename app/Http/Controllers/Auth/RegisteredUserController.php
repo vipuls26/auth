@@ -23,8 +23,7 @@ class RegisteredUserController extends Controller
     // storing data into db
     public function store(RegisterRequest $request): RedirectResponse
     {
-
-        $request->validated();
+        // $request->validated();
 
         // fetch role from role table
         $role = Role::where('name', $request->role)->first();

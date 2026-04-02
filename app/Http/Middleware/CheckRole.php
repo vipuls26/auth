@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class CheckRole
 {
@@ -20,10 +20,15 @@ class CheckRole
         if (!Auth::check()) {
             return redirect()->route('login');
         }
-        
-        $user = Auth::user();
-        $currentRole = $user->roles->first()->name;
 
+        $user = Auth::user();
+
+        if (!$user) {
+            $user = User::find($user);
+        }
+
+        $currentRole = $user?->roles()->first()?->name ?? 'guest';
+        
         if ($currentRole !== $roles) {
             return redirect('/error-401');
         } else {

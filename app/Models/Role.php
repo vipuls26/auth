@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\User;;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+
+#[Fillable(['name'])]
 
 class Role extends Model
 {

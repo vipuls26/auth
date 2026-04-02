@@ -2,33 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Role;
 use App\Models\Blog;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token','created_at','updated_at','email_verified_at'])]
 
 class User extends Authenticatable implements MustVerifyEmail
 {
 
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens, HasFactory;
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $fillable = ['name', 'email', 'password'];
+    protected $hidden = ['password', 'remember_token', 'created_at', 'updated_at', 'email_verified_at'];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     // role
     public function roles(): BelongsToMany
@@ -39,7 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
     // profile photo
     public function image(): HasOne
     {
-        return $this->hasOne(ImageUpload::class,'user_id');
+        return $this->hasOne(ImageUpload::class, 'user_id');
     }
 
     // blog post
@@ -49,10 +46,8 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // audit
-    public function audit():HasMany
+    public function audit(): HasMany
     {
         return $this->hasMany(AuditLog::class);
     }
-
-
 }

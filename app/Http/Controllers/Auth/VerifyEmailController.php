@@ -13,21 +13,47 @@ class VerifyEmailController extends Controller
     /**
      * Mark the authenticated user's email address as verified.
      */
+    // public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    // {
+
+    //     if ($request->user()->hasVerifiedEmail()) {
+    //         $user = Auth::user()?->name ?? 'Guest';
+    //         $role = $user->roles->first()->name;
+
+    //         return redirect()->intended(
+    //             route("{$role}.dashboard", absolute: false) . '?verified=1'
+    //         );
+    //     }
+
+    //     if ($request->user()->markEmailAsVerified()) {
+    //         event(new Verified($request->user()));
+    //     }
+    //     $user = Auth::user()?->name ?? 'Guest';
+    //     $role = $user->roles->first()->name;
+
+    //     return redirect()->intended(route("{$role}.dashboard", absolute: false) . '?verified=1');
+    // }
+
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
-    {
-        if ($request->user()->hasVerifiedEmail()) {
-            $user = Auth::user();
-            $role = $user->roles->first()->name;
+{
+    $user = $request->user(); 
 
-            return redirect()->intended(route("{$role}.dashboard", absolute: false) . '?verified=1');
-        }
-
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
-        $user = Auth::user();
+    if ($user->hasVerifiedEmail()) {
         $role = $user->roles->first()->name;
 
-        return redirect()->intended(route("{$role}.dashboard", absolute: false) . '?verified=1');
+        return redirect()->intended(
+            route("{$role}.dashboard", absolute: false) . '?verified=1'
+        );
     }
+
+    if ($user->markEmailAsVerified()) {
+        event(new Verified($user));
+    }
+
+    $role = $user->roles->first()->name;
+
+    return redirect()->intended(
+        route("{$role}.dashboard", absolute: false) . '?verified=1'
+    );
+}
 }

@@ -45,5 +45,5 @@ class UserController extends Controller
         }
 
         return view('user.dashboard', compact('blogs', 'category', 'total_blogs', 'pending_blog', 'reviewd_blog', 'approved_blog'));
-    }
+    }   
 }
