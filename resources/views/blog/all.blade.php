@@ -108,7 +108,7 @@
                     <div class="mt-6 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-2">
                             <img class="h-8 w-8 rounded-full bg-gray-200"
-                                src="{{ $blog->user?->image ? asset('storage/' . $blog->user->image->image_path) : asset('images/default-avatar.png') }}"
+                                src="{{ $blog->user?->image ? asset('storage/' . $blog->user->image->image_path) : asset('storage/default-avatar.png') }}"
                                 alt="{{ $blog->user?->name ?? 'Unknown' }}">
                             <p class="text-sm font-medium text-gray-900">
                                 {{ $blog->user?->name ?? 'unknown' }}

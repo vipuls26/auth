@@ -42,12 +42,14 @@ class UserController extends Controller
             $approved_blog = auth()->user()->blogs()->where('status', 'publish')->count();
             $pending_blog = auth()->user()->blogs()->where('status', 'pending')->count();
             $reviewd_blog = auth()->user()->blogs()->where('status', 'review')->count();
+            $trash_blog = Blog::onlyTrashed()->where('user_id', Auth::id())->count();
         }
 
-        return view('user.dashboard', compact('blogs', 'category', 'total_blogs', 'pending_blog', 'reviewd_blog', 'approved_blog'));
+        return view('user.dashboard', compact('blogs', 'category', 'total_blogs', 'pending_blog', 'reviewd_blog', 'approved_blog', 'trash_blog'));
     }
 
-    public function list(Request $request) {
+    public function list(Request $request)
+    {
         $blogs = Blog::with('image')->get()->all();
 
         dd($blogs);

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper\DateFormat;
+use App\Events\BlogPublished;
 use App\Http\Requests\Blog\BlogRequest;
 use App\Http\Requests\Blog\UpdateRequest;
 use App\Models\Category;
@@ -183,10 +183,13 @@ class BlogController extends Controller
         $status = $request->status;
 
         if (!empty($id) && !empty($status)) {
-            Blog::updateOrCreate(
+            $blog = Blog::updateOrCreate(
                 ['id' => $id],
                 ['status' => $status]
             );
+
+            event(new BlogPublished($blog));
+
             return response()->json(['success' => 'Status updated successfully!']);
         } else {
             return response()->json(['error' => 'error occur while updating']);
@@ -250,6 +253,7 @@ class BlogController extends Controller
         return view('blog.edit', compact('blog', 'category'));
     }
 
+    // update blog
     public function updateBlog(UpdateRequest $request, $id)
     {
         // current user id
@@ -269,43 +273,63 @@ class BlogController extends Controller
 
         // check if blog belong to user
 
-        $blog->update([
-            'title' => $request->title,
-            'content' => $request->content,
-            'category_id' => $category->id,
-        ]);
+        // dd($blog);
 
-        $file = $request->file('image');
+        if ($blog->user_id === Auth::id()) {
+            $blog->update([
+                'title' => $request->title,
+                'content' => $request->content,
+                'category_id' => $category->id,
+            ]);
 
-        // check if file is upload
-        if ($file) {
-            // namimg of image upload
-            $imageName = uniqid() . '.' . $file->extension();
-            // store image in folder
-            $imagePath = $file->storeAs('blogs', $imageName, 'public');
-            // check if file exist or not
-            $existing_image = ImageUpload::where('blog_id', $blog->id)->first();
+            $file = $request->file('image');
 
-            // delete old file if exist
-            if ($existing_image) {
-                Storage::disk('public')->delete($existing_image->image_path);
+            // check if file is upload
+            if ($file) {
+                // namimg of image upload
+                $imageName = uniqid() . '.' . $file->extension();
+                // store image in folder
+                $imagePath = $file->storeAs('blogs', $imageName, 'public');
+                // check if file exist or not
+                $existing_image = ImageUpload::where('blog_id', $blog->id)->first();
 
-                $existing_image->update([
-                    'name' => $imageName,
-                    'image_path' => $imagePath
-                ]);
+                // delete old file if exist
+                if ($existing_image) {
+                    Storage::disk('public')->delete($existing_image->image_path);
+
+                    $existing_image->update([
+                        'name' => $imageName,
+                        'image_path' => $imagePath
+                    ]);
+                } else {
+                    ImageUpload::create([
+                        'name' => $imageName,
+                        'image_path' => $imagePath,
+                        'blog_id' => $blog->id,
+                    ]);
+                }
             } else {
-                ImageUpload::create([
-                    'name' => $imageName,
-                    'image_path' => $imagePath,
-                    'blog_id' => $blog->id,
-                ]);
+                return redirect()->route('user.dashboard')->with('message', 'blog update successfully');
             }
-
-
-            return redirect()->route('user.dashboard')->with('message', 'blog update successfully');
         } else {
-            return redirect()->route('user.dashboard')->with('message', 'this is not your blog');
+            return redirect()->route('user.dashboard')->with('message', 'this blog is not your');
+        }
+    }
+
+    // restore blog
+    public function restore(Request $request)
+    {
+        // check soft delete blog for current user
+        $query = Blog::onlyTrashed()->where('user_id', Auth::id());
+
+        // restore blog
+        $restoreBlog = $query->restore();
+
+        // check if blog count
+        if ($restoreBlog > 0) {
+            return redirect()->route('user.dashboard')->with('message', 'all blog restore');
+        } else {
+            return redirect()->route('user.dashboard')->with('message', 'no blogs available to restore');
         }
     }
 }

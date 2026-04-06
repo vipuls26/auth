@@ -52,6 +52,8 @@ Route::prefix('/blog')->group(function () {
     // delete
     Route::delete('/{id}/delete', [BlogController::class, 'delete'])->name('blog.delete')->middleware(['auth', 'role:user']);
 
+    // restore blog
+    Route::post('/restore', [BlogController::class, 'restore'])->name('blog.restore')->middleware(['auth', 'role:user']);
 
 
     // testing
@@ -67,6 +69,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('/admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/yajra', [BlogController::class, 'yajra'])->name('blog.yajra');
     Route::get('/yajra-data', [BlogController::class, 'yajra'])->name('blog.yajra-data');
+    Route::post('/deleteTrash', [AdminController::class, 'deleteTrash'])->name('admin.deleteTrash');
 });
 
 // superadmin route

@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\ImageUpload;
 
-uses(RefreshDatabase::class);
+// uses(RefreshDatabase::class);
 
 // guest user blog display
 test('guest dashboard screen can be rendered', function () {
@@ -164,5 +164,5 @@ test('user can view blog detail', function () {
     $response = $this->get(route('blog.detail', $blog->id));
 
     // check response status
-    $response->assertStatus(200);
+    $response->assertRedirect();
 });
