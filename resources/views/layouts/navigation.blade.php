@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div>
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-16 mx-auto">
             <div class="flex">
 
                 <!-- Navigation Links -->
@@ -81,7 +81,7 @@
                     </x-slot>
                 </x-dropdown>
                 @else
-                <div>
+                <div class="ms-8 me-8">
                     <a href="{{ route('login') }}" class="ml-auto px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Sign in</a>
 
                     <a href="{{ route('register') }}" class="ml-auto px-3 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Sign up</a>

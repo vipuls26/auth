@@ -45,5 +45,11 @@ class UserController extends Controller
         }
 
         return view('user.dashboard', compact('blogs', 'category', 'total_blogs', 'pending_blog', 'reviewd_blog', 'approved_blog'));
-    }   
+    }
+
+    public function list(Request $request) {
+        $blogs = Blog::with('image')->get()->all();
+
+        dd($blogs);
+    }
 }

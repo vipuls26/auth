@@ -4,11 +4,20 @@
     <div class="relative mt-3 max-w-4xl mx-auto overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
 
 
-        <a href="{{ route('blog.all') }}"
-            class="absolute top-4 left-4 z-20 flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 hover:bg-white transition shadow-sm">
 
+        @auth
+        <a href="{{ url('/user/dashboard') }}"
+            class="absolute top-4 left-4 z-20 flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 hover:bg-white transition shadow-sm">
             Back
         </a>
+        @endauth
+
+        @guest
+        <a href="{{ route('blog.all') }}"
+            class="absolute top-4 left-4 z-20 flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 hover:bg-white transition shadow-sm">
+            Back
+        </a>
+        @endguest
 
 
         <div class="w-full h-[50vh]">

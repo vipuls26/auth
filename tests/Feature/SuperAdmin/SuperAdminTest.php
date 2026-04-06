@@ -3,12 +3,13 @@
 use App\Models\Role;
 use App\Models\User;
 
-test('user dashboard screen can be rendered', function () {
+// display superadmin dashboard
+test('superadmin dashboard screen can be rendered', function () {
 
     // create new user
     $user = User::factory()->create();
     // create role with user
-    $role = Role::create(['name' => 'user']);
+    $role = Role::create(['name' => 'superadmin']);
     // find created user
     $user = User::where('email', $user->email)->first();
     // assign role to user
@@ -19,7 +20,7 @@ test('user dashboard screen can be rendered', function () {
 
     // redirect to dashbaord
     $response = $this->actingAs($user)
-        ->get(route('user.dashboard'));
+        ->get(route('superadmin.dashboard'));
 
     // check response
     $response->assertStatus(200);

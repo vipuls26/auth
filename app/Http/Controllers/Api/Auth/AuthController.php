@@ -90,6 +90,7 @@ class AuthController extends Controller
         // delete access token from db
         $user = $request->user()->currentAccessToken()->delete();
 
+        
         // pass response if failed to delete user accessToken
         if (!$user) {
             return response()->json([

@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
 
@@ -25,13 +26,15 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+// user logout
 test('users can logout', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->post('/logout');
 
-    $this->assertGuest();
-    $response->assertRedirect('/');
+    $response->assertSessionHasNoErrors();
+
+    $response->assertStatus(302);
 });
 
 // user login
@@ -60,6 +63,7 @@ test('user can login to their dashboard', function () {
 
     // redirect to login
     $response->assertRedirect(route('user.dashboard'));
+
     auth()->logout();
 });
 

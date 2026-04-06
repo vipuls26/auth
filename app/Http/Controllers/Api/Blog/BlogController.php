@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 class BlogController extends Controller
 {
 
-    // all blog for quest user
+    // all blog for user
     public function allBlog()
     {
         // fetch only publish blog
@@ -55,9 +55,9 @@ class BlogController extends Controller
         // check if user has blog or not
         if ($blogs->isEmpty()) {
             return response()->json([
-                'status' => 404,
-                'message' => 'no blog found',
-            ], 404);
+                'status' => 200,
+                'message' => 'you have not upload any blog yet',
+            ], 200);
         } else {
             return response()->json([
                 'status' => 200,
@@ -243,11 +243,11 @@ class BlogController extends Controller
 
         // delete blog
         try {
-            // $blog->delete();
+            $blog->delete();
             return response()->json([
-                'status' => 200,
+                'status' => 302,
                 'message' =>  'blog delete successfully'
-            ], 200);
+            ], 302);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 500,
@@ -334,7 +334,7 @@ class BlogController extends Controller
         ], 200);
     }
 
-    // totoal post
+    // total post
     public function postDetail()
     {
         $user_id = Auth::id();

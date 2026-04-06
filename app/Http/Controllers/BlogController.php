@@ -254,50 +254,54 @@ class BlogController extends Controller
     {
         // current user id
         $user_id = Auth::id();
+
         // validate input
         $validated = $request->validated();
 
         // find blog user id
-        $blog = Blog::findOrFail($id)->where('user_id', $user_id);
+        // $blog = Blog::findOrFail($id)->where('user_id', $user_id);
+        $blog = Blog::where('id', $id)->where('user_id', $user_id)->firstOrFail();
+
+        // dd($blog);
 
         // fetch category id by name
         $category = category::where('name', $request->category)->first();
 
         // check if blog belong to user
-        if ($blog === $user_id) {
-            $blog->update([
-                'title' => $request->title,
-                'content' => $request->content,
-                'category_id' => $category->id,
-            ]);
 
-            $file = $request->file('image');
+        $blog->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'category_id' => $category->id,
+        ]);
 
-            // check if file is upload
-            if ($file) {
-                // namimg of image upload
-                $imageName = uniqid() . '.' . $file->extension();
-                // store image in folder
-                $imagePath = $file->storeAs('blogs', $imageName, 'public');
-                // check if file exist or not
-                $existing_image = ImageUpload::where('blog_id', $blog->id)->first();
+        $file = $request->file('image');
 
-                // delete old file if exist
-                if ($existing_image) {
-                    Storage::disk('public')->delete($existing_image->image_path);
+        // check if file is upload
+        if ($file) {
+            // namimg of image upload
+            $imageName = uniqid() . '.' . $file->extension();
+            // store image in folder
+            $imagePath = $file->storeAs('blogs', $imageName, 'public');
+            // check if file exist or not
+            $existing_image = ImageUpload::where('blog_id', $blog->id)->first();
 
-                    $existing_image->update([
-                        'name' => $imageName,
-                        'image_path' => $imagePath
-                    ]);
-                } else {
-                    ImageUpload::create([
-                        'name' => $imageName,
-                        'image_path' => $imagePath,
-                        'blog_id' => $blog->id,
-                    ]);
-                }
+            // delete old file if exist
+            if ($existing_image) {
+                Storage::disk('public')->delete($existing_image->image_path);
+
+                $existing_image->update([
+                    'name' => $imageName,
+                    'image_path' => $imagePath
+                ]);
+            } else {
+                ImageUpload::create([
+                    'name' => $imageName,
+                    'image_path' => $imagePath,
+                    'blog_id' => $blog->id,
+                ]);
             }
+
 
             return redirect()->route('user.dashboard')->with('message', 'blog update successfully');
         } else {

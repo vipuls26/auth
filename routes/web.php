@@ -29,7 +29,10 @@ Route::middleware('auth')->group(function () {
 
 // user route
 Route::prefix('/user')->middleware(['auth', 'role:user'])->group(function () {
+    // blog
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
+    // list
+    Route::get('/list', [UserController::class, 'list'])->name('user.list');
 });
 
 // blog route
@@ -48,6 +51,14 @@ Route::prefix('/blog')->group(function () {
 
     // delete
     Route::delete('/{id}/delete', [BlogController::class, 'delete'])->name('blog.delete')->middleware(['auth', 'role:user']);
+
+
+
+    // testing
+    Route::post('/store', [BlogController::class, 'store'])->name('blog.store');
+    Route::put('/{id}/updateBlog', [BlogController::class, 'updateBlog'])->name('blog.updateBlog');
+    Route::delete('/{id}/delete', [BlogController::class, 'delete'])->name('blog.delete');
+
 });
 
 
