@@ -31,8 +31,13 @@ Route::middleware('auth')->group(function () {
 Route::prefix('/user')->middleware(['auth', 'role:user'])->group(function () {
     // blog
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
-    // list
-    Route::get('/list', [UserController::class, 'list'])->name('user.list');
+
+    // mark as read
+    Route::post('/markAsRead', [UserController::class, 'markAsRead'])->name('user.markAsRead');
+    // delete notification
+    Route::delete('/clearNotifications', [UserController::class, 'clearNotifications'])->name('user.clearNotifications');
+
+
 });
 
 // blog route
@@ -53,8 +58,8 @@ Route::prefix('/blog')->group(function () {
     Route::delete('/{id}/delete', [BlogController::class, 'delete'])->name('blog.delete')->middleware(['auth', 'role:user']);
 
     // restore blog
-    Route::post('/restore', [BlogController::class, 'restore'])->name('blog.restore')->middleware(['auth', 'role:user']);
-
+    Route::get('/restore', [BlogController::class, 'restore'])->name('blog.restore')->middleware(['auth', 'role:user']);
+    Route::post('/restore-blog', [BlogController::class, 'restoreBlog'])->name('blog.restoreBlog')->middleware(['auth', 'role:user']);
 
     // testing
     Route::post('/store', [BlogController::class, 'store'])->name('blog.store');

@@ -7,14 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class BlogPulishedNotification extends Notification
+class BlogPublishedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public $blog;
-    /**
-     * Create a new notification instance.
-     */
+
     public function __construct($blog)
     {
         //
@@ -28,8 +26,9 @@ class BlogPulishedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
+
 
     /**
      * Get the mail representation of the notification.
@@ -50,7 +49,7 @@ class BlogPulishedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => 'New blog published: ' . $this->blog->title,
+            'message' => 'Blog published: ' . $this->blog->title,
             'blog_id' => $this->blog->id,
         ];
     }

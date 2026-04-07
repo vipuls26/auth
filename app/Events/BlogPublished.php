@@ -15,14 +15,13 @@ class BlogPublished
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $blog;
-    /**
-     * Create a new event instance.
-     */
+
     public function __construct($blog)
     {
         //
         $this->blog = $blog;
     }
+
 
     /**
      * Get the channels the event should broadcast on.

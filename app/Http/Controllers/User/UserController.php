@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
 
+    // user dashboard
     public function dashboard(Request $request)
     {
         $user_id = Auth::id();
@@ -48,10 +49,17 @@ class UserController extends Controller
         return view('user.dashboard', compact('blogs', 'category', 'total_blogs', 'pending_blog', 'reviewd_blog', 'approved_blog', 'trash_blog'));
     }
 
-    public function list(Request $request)
+    // mark as read button
+    public function markAsRead(Request $request)
     {
-        $blogs = Blog::with('image')->get()->all();
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    }
 
-        dd($blogs);
+    // clear notification
+    public function clearNotifications()
+    {
+        auth()->user()->notifications()->delete();
+        return back();
     }
 }

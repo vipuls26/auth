@@ -12,14 +12,53 @@
                 <div class="flex gap-4">
 
                     <div class="relative inline-block">
-                        <!-- Notification Icon -->
-                        <i class="fa-solid fa-bell fa-2x"></i>
 
-                        <!-- Badge Count -->
-                        <span
-                            class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
-                            5
-                        </span>
+                        {{-- notification --}}
+                        <div class="notification-panel">
+                            <button class="notification" id="notificationBtn">
+                                <i class="fa-solid fa-bell fa-2x"></i>
+
+                                @if (auth()->user()->unreadNotifications->count() > 0)
+                                    <span
+                                        class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+                                        {{ auth()->user()->unreadNotifications->count() }}
+                                    </span>
+                                @endif
+                            </button>
+
+                            <ul id="notificationList"
+                                class="absolute right-0 mt-1 w-64 bg-white shadow-lg flex flex-col-reverse z-40 border">
+
+                                @foreach (auth()->user()->notifications as $notification)
+                                    <p class="p-4 mb-1 text-sm text-blue-800 bg-blue-50 rounded-lg">
+                                        Message: {{ $notification->data['message'] }}
+                                    </p>
+                                @endforeach
+
+                                <div class="flex justify-between items-center p-4">
+
+                                    <form action="{{ route('user.clearNotifications') }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                                            Clear
+                                        </button>
+                                    </form>
+
+
+                                    <form action="{{ route('user.markAsRead') }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                                            Mark as read
+                                        </button>
+                                    </form>
+                                </div>
+
+
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="relative inline-block">
@@ -99,7 +138,7 @@
                         <i class="fa-solid fa-trash"></i>
                     </div>
 
-                    <form action="{{ route('blog.restore') }}" method="POST">
+                    {{-- <form action="{{ route('blog.restore') }}" method="POST">
                         @csrf
                         @method('POST')
                         <button type="submit" class="Restore">
@@ -112,10 +151,23 @@
                                 </p>
                             </div>
                         </button>
-                    </form>
-                </div>
-            </div>
+                    </form> --}}
 
+                    <div>
+                        <a href=" {{ route('blog.restore') }} ">
+                            <p class="mb-2 text-sm font-medium text-gray-600">
+                                Restore
+                            </p>
+                            <p class="text-2xl font-semibold text-gray-700">
+                                {{ $trash_blog }}
+                            </p>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -263,31 +315,14 @@
             });
         });
 
-        // restore blog
-        $('.Restore').on('click', function(event) {
-            event.preventDefault();
-
-            // Target the actual form element
-            var form = $(this).closest('form');
-
-            Swal.fire({
-                title: 'Restore all trash blogs?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#1bc4ae',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, restore it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('Restored!', 'Your blogs are being restored.', 'success');
-
-                    setTimeout(() => {
-                        // Access the native form element to call submit
-                        form[0].submit();
-                    }, 1000);
-                }
-            });
+        // notification
+        $('.notification').on('click', function(event) {
+            event.stopPropagation();
+            $('#notificationList').slideToggle('fast');
         });
 
+        $(document).on('click', function() {
+            $('#notificationList').hide();
+        });
     });
 </script>

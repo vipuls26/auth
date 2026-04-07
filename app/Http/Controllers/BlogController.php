@@ -12,12 +12,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 
 class BlogController extends Controller
 {
-
+    // add blog to db
     public function add()
     {
         $category = category::all('name');
@@ -54,7 +55,7 @@ class BlogController extends Controller
         return redirect()->route('user.dashboard')->with('message', 'blog add successfully');
     }
 
-
+    // show blog to guest
     public function show(Request $request)
     {
         $query = Blog::query()->where('status', 'publish');
@@ -188,7 +189,10 @@ class BlogController extends Controller
                 ['status' => $status]
             );
 
-            event(new BlogPublished($blog));
+            if ($status == 'publish') {
+                event(new BlogPublished($blog));
+
+            }
 
             return response()->json(['success' => 'Status updated successfully!']);
         } else {
@@ -272,9 +276,6 @@ class BlogController extends Controller
         $category = category::where('name', $request->category)->first();
 
         // check if blog belong to user
-
-        // dd($blog);
-
         if ($blog->user_id === Auth::id()) {
             $blog->update([
                 'title' => $request->title,
@@ -317,17 +318,24 @@ class BlogController extends Controller
     }
 
     // restore blog
-    public function restore(Request $request)
+    public function restore()
     {
-        // check soft delete blog for current user
-        $query = Blog::onlyTrashed()->where('user_id', Auth::id());
+        $allBlogs = Blog::onlyTrashed()->where('user_id', auth()->id())->get();
 
-        // restore blog
-        $restoreBlog = $query->restore();
+        return view('blog.restore', compact('allBlogs'));
+    }
+
+    public function restoreBlog(Request $request)
+    {
+
+        $blog_id = $request->blog_ids;
+
+        // check soft delete blog for current user
+        $restoreBlog = Blog::withTrashed()->where('user_id', Auth::id())->whereIn('id', $blog_id)->restore();
 
         // check if blog count
         if ($restoreBlog > 0) {
-            return redirect()->route('user.dashboard')->with('message', 'all blog restore');
+            return redirect()->route('user.dashboard')->with('message', 'seleceted blog restore');
         } else {
             return redirect()->route('user.dashboard')->with('message', 'no blogs available to restore');
         }
